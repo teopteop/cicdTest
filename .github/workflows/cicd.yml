@@ -49,11 +49,3 @@ jobs:
         with:
           name: junit-test-report
           path: build/test-results/test
-
-      - name: Report Test Results
-        if: always()
-        uses: dorny/test-reporter@v1
-        with:
-          name: JUnit Tests
-          path: build/test-results/test/TEST-*.xml
-          reporter: java-junit
