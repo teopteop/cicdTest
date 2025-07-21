@@ -26,6 +26,10 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4.0.0 # v4.0.0
 
+      # 그래들 권한 설정 : 이게 없으면 테스트 권한이 없음
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
       - name: Build with Gradle Wrapper
         run: ./gradlew build
         #./gradlew build 명령은 Gradle 에서 다음 작업들을 자동으로 포함해서 실행
