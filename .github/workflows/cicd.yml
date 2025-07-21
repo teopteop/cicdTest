@@ -1,4 +1,55 @@
-name: cicd.yml
+
+name: CI/CD actions
+
 on:
+  pull_request:
+    branches: [ "develop" ]
 
 jobs:
+  build:
+
+    runs-on: ubuntu-latest #우분투(리눅스) 최신버전으로
+    permissions:
+      contents: read
+      #읽기권한 : 보안과 안정성을 위한 명시적 설정
+      #기본값이 read 라 필수 기입사항 아님
+
+    #JDK 17 셋업
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17' # 버전
+          distribution: 'temurin' #Eclipse Temurin 에서 제공하는 안정적인 JDK 배포판
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4.0.0 # v4.0.0
+
+      - name: Build with Gradle Wrapper
+        run: ./gradlew build
+        #./gradlew build 명령은 Gradle 에서 다음 작업들을 자동으로 포함해서 실행
+        #compileJava – Java 컴파일
+        #processResources – 리소스 처리
+        #classes – 클래스 생성
+        #test – JUnit 등의 테스트 코드 실행
+        #jar – JAR 파일 생성
+        #assemble
+        #check – test, lint, code style 등의 품질 체크 포함
+        #build – 위 과정 전체를 하나로 묶은 빌드 task
+
+      #Github Actions의 "Arifacts" 영역에 테스트 결과 저장
+      - name: Upload test report
+        if: always() #테스트가 실패하더라도 리포트는 기록
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-test-report
+          path: build/test-results/test
+
+      - name: Report Test Results
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: JUnit Tests
+          path: build/test-results/test/TEST-*.xml
+          reporter: java-junit
